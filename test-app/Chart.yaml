@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Testing deploying a microservice
+name: test-app
+version: 0.1.0

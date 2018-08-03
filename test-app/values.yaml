@@ -1,0 +1,33 @@
+app:
+  image: eu.gcr.io/my-project/test-app
+  version: 0.1.0
+  staging_blue_version: 0.1.0-staging-blue
+  staging_green_version: 0.1.0-staging-green
+  prod_blue_version: 0.1.0-prod-blue
+  prod_green_version: 0.1.0-prod-green
+
+environments:
+  staging:
+    colours:
+      - blue
+      - green
+    replicas: 1
+    default_colour: blue
+  prod:
+    colours:
+      - blue
+      - green
+    replicas: 2
+    default_colour: blue
+
+keel:
+  policy: all
+  images:
+    - repository: app.image
+      tag: app.staging_blue_version
+    - repository: app.image
+      tag: app.staging_green_version
+    - repository: app.image
+      tag: app.prod_blue_version
+    - repository: app.image
+      tag: app.prod_green_version

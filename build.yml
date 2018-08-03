@@ -1,0 +1,20 @@
+build:
+  version: 2016-03-14
+  steps:
+    build:
+      name: build
+      dockerfile: Dockerfile
+      target: build
+      no_cache: true
+    test:
+      depends_on:
+        - build
+      name: test
+      dockerfile: Dockerfile
+      target: test
+    runtime:
+      depends_on:
+        - test
+      name: runtime
+      dockerfile: Dockerfile
+      target: runtime

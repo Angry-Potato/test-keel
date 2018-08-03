@@ -1,0 +1,26 @@
+{{- range $envKey, $env := .Values.environments }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-%s" $envKey $.Chart.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    app: {{ template "test-app.name" $ }}
+    chart: {{ template "test-app.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+    env: {{ $envKey }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+spec:
+  type: NodePort
+  selector:
+    app: {{ template "test-app.name" $ }}
+    tier: web
+    env: {{ $envKey }}
+    colour: {{ $env.default_colour }}
+  ports:
+  - port: 8080
+    targetPort: 3000
+---
+{{- end }}

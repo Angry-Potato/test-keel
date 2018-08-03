@@ -1,0 +1,53 @@
+{{- range $envKey, $env := .Values.environments }}
+{{- range $colour := $env.colours }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s-%s" $envKey $colour $.Chart.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    app: {{ template "test-app.name" $ }}
+    chart: {{ template "test-app.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+    env: {{ $envKey }}
+    colour: {{ $colour }}
+spec:
+  replicas: {{ $env.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "test-app.name" $ }}
+      tier: web
+      env: {{ $envKey }}
+      colour: {{ $colour }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "test-app.name" $ }}
+        tier: web
+        env: {{ $envKey }}
+        colour: {{ $colour }}
+    spec:
+      containers:
+      - name: {{ $.Chart.Name }}
+        image: {{ printf "%s:%s-%s-%s" $.Values.app.image $.Values.app.version $envKey $colour }}
+        env:
+          - name: TARGET_COLOUR
+            value: {{ $colour }}
+          - name: TARGET_ENV
+            value: {{ $envKey }}
+        ports:
+          - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+{{- end }}
+{{- end }}
